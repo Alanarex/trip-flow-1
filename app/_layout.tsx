@@ -1,24 +1,48 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { Slot, usePathname, useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import 'react-native-get-random-values';
+import { SessionProvider, useSession } from './auth';
+import { migrateAndSeed } from './lib/db';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+const LOGIN_ROUTE = '/auth/login';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+function AuthGate() {
+  const [dbReady, setDbReady] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, booted } = useSession();
+
+  useEffect(() => {
+    migrateAndSeed().then(() => setDbReady(true)).catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (!dbReady || !booted) return;
+
+    const onLoginScreen =
+      pathname === LOGIN_ROUTE ||
+      pathname?.startsWith('/auth/') ||      // handles /auth/login
+      pathname?.startsWith('/(auth)/');      // handles /(auth)/login
+
+    if (!user && !onLoginScreen) {
+      router.replace(LOGIN_ROUTE);
+      return;
+    }
+
+    if (user && onLoginScreen) {
+      router.replace('/');
+      return;
+    }
+  }, [dbReady, booted, user, pathname, router]);
+
+  if (!dbReady || !booted) return null;
+  return <Slot />;
+}
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SessionProvider>
+      <AuthGate />
+    </SessionProvider>
   );
 }
