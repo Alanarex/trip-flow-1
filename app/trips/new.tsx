@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
 import { useSession } from '../auth';
 import { getDb, tx, uuid } from '../lib/db';
 
@@ -85,8 +85,12 @@ export default function NewTrip() {
 
       setStatus({ type: 'ok', msg: 'Trip created successfully!' });
       setTimeout(() => router.replace('/'), 500);
-    } catch (error: any) {
-      setStatus({ type: 'error', msg: error.message || 'Failed to create trip' });
+    } catch (error: unknown) {
+      let errorMessage = 'Failed to create trip';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      setStatus({ type: 'error', msg: errorMessage });
     }
   };
 
@@ -132,7 +136,7 @@ export default function NewTrip() {
             // For now just show a simple date selector (will be improved later)
             const today = new Date();
             setStartDateWithFormat(today);
-            alert('Date picker functionality will be fixed in the next update. Using current date for now.');
+            Alert.alert('Notice', 'Date picker functionality will be fixed in the next update. Using current date for now.');
           }}
         >
           <Text style={styles.dateText}>
@@ -152,7 +156,7 @@ export default function NewTrip() {
             tomorrow.setDate(tomorrow.getDate() + 1);
             
             setEndDateWithFormat(tomorrow);
-            alert('Date picker functionality will be fixed in the next update. Using tomorrow\'s date for now.');
+            Alert.alert('Notice', "Date picker functionality will be fixed in the next update. Using tomorrow's date for now.");
           }}
         >
           <Text style={styles.dateText}>

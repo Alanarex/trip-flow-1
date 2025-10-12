@@ -1,96 +1,85 @@
 /**
- * Augmentation for react-native types
- * This file adds any missing types or adjusts incorrect types in react-native
+ * Minimal augmentation for react-native types used by this project.
+ * Keeps things deliberately simple (uses `any` for style types) to avoid
+ * tight coupling with upstream type packages while fixing editor errors.
  */
 
-// This declaration merges with the existing react-native module
 declare module 'react-native' {
-  import { ComponentType, ReactNode } from 'react';
+    import { ComponentType, ReactNode } from 'react';
 
-  export interface StyleSheetStatic {
-    create<T extends StyleSheet<T>>(styles: T): T;
-  }
-  
-  export interface StyleSheet<T> {
-    [key: string]: any;
-  }
-  
-  export const StyleSheet: StyleSheetStatic;
+    // Use loose types for styles to avoid importing upstream style types here.
+    export type ViewStyle = any;
+    export type TextStyle = any;
+    export type ImageStyle = any;
 
-  export interface TextProps {
-    style?: any;
-    children?: ReactNode;
-    onPress?: () => void;
-  }
-  
-  export const Text: ComponentType<TextProps>;
+    export const StyleSheet: {
+        create: <T extends { [key: string]: any }>(styles: T) => T;
+    };
 
-  export interface ViewProps {
-    style?: any;
-    children?: ReactNode;
-  }
-  
-  export const View: ComponentType<ViewProps>;
+    export interface TextProps {
+        style?: TextStyle | TextStyle[];
+        children?: ReactNode;
+        onPress?: () => void;
+    }
+    export const Text: ComponentType<TextProps>;
 
-  export interface ButtonProps {
-    title: string;
-    onPress?: () => void;
-    color?: string;
-  }
-  
-  export const Button: ComponentType<ButtonProps>;
+    export interface ViewProps {
+        style?: ViewStyle | ViewStyle[];
+        children?: ReactNode;
+    }
+    export const View: ComponentType<ViewProps>;
 
-  /** Alert API */
-  export interface AlertButton {
-    text?: string;
-    onPress?: () => void;
-    style?: 'default' | 'cancel' | 'destructive';
-  }
+    export interface ButtonProps {
+        title: string;
+        onPress?: () => void;
+        color?: string;
+    }
+    export const Button: ComponentType<ButtonProps>;
 
-  export interface AlertStatic {
-    alert(title: string, message?: string, buttons?: AlertButton[], options?: any): void;
-  }
+    // Alert API
+    export interface AlertButton {
+        text?: string;
+        onPress?: () => void;
+        style?: 'default' | 'cancel' | 'destructive';
+    }
+    export interface AlertStatic {
+        alert(title: string, message?: string, buttons?: AlertButton[] | undefined, options?: any): void;
+    }
+    export const Alert: AlertStatic;
 
-  export const Alert: AlertStatic;
+    export interface ScrollViewProps extends ViewProps {
+        contentContainerStyle?: ViewStyle | ViewStyle[];
+    }
+    export const ScrollView: ComponentType<ScrollViewProps>;
 
-  export interface ScrollViewProps extends ViewProps {
-    contentContainerStyle?: any;
-  }
-  
-  export const ScrollView: ComponentType<ScrollViewProps>;
+    export interface ActivityIndicatorProps {
+        size?: 'small' | 'large' | number;
+        color?: string;
+    }
+    export const ActivityIndicator: ComponentType<ActivityIndicatorProps>;
 
-  export interface ActivityIndicatorProps {
-    size?: 'small' | 'large' | number;
-    color?: string;
-  }
+    export interface FlatListProps<ItemT = any> {
+        data?: ItemT[] | null;
+        renderItem?: ({ item, index }: { item: ItemT; index: number }) => ReactNode;
+        keyExtractor?: (item: ItemT, index: number) => string;
+        ListEmptyComponent?: ComponentType<any> | ReactNode | null;
+        contentContainerStyle?: any;
+    }
+    export function FlatList<T = any>(props: FlatListProps<T>): JSX.Element;
 
-  export const ActivityIndicator: ComponentType<ActivityIndicatorProps>;
+    export interface TextInputProps {
+        style?: TextStyle | TextStyle[];
+        value?: string;
+        onChangeText?: (text: string) => void;
+        placeholder?: string;
+        placeholderTextColor?: string;
+    }
+    export const TextInput: ComponentType<TextInputProps>;
 
-  export interface FlatListProps<ItemT = any> {
-    data?: ItemT[] | null;
-    renderItem?: ({ item, index }: { item: ItemT; index: number }) => ReactNode;
-    keyExtractor?: (item: ItemT, index: number) => string;
-  ListEmptyComponent?: ComponentType<any> | ReactNode | null;
-    contentContainerStyle?: any;
-  }
+    export interface TouchableOpacityProps extends ViewProps {
+        onPress?: () => void;
+    }
+    export const TouchableOpacity: ComponentType<TouchableOpacityProps>;
 
-  export function FlatList<T = any>(props: FlatListProps<T>): JSX.Element;
-
-  export interface TextInputProps {
-    style?: any;
-    value?: string;
-    onChangeText?: (text: string) => void;
-    placeholder?: string;
-    placeholderTextColor?: string;
-  }
-  
-  export const TextInput: ComponentType<TextInputProps>;
-
-  export interface TouchableOpacityProps extends ViewProps {
-    onPress?: () => void;
-  }
-  
-  export const TouchableOpacity: ComponentType<TouchableOpacityProps>;
-  
-  // Add any other missing components as needed
+    // add other minimal declarations as needed
 }
