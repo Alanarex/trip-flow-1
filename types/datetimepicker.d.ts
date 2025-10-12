@@ -10,7 +10,10 @@ declare module '@react-native-community/datetimepicker' {
     testID?: string;
     value: Date;
     mode?: 'date' | 'time' | 'datetime' | 'countdown';
-    display?: 'default' | 'spinner' | 'calendar' | 'clock';
+  display?: 'default' | 'spinner' | 'calendar' | 'clock';
+  // iOS-specific customization
+  textColor?: string;
+  style?: any;
     onChange?: (event: any, date?: Date) => void;
     minimumDate?: Date;
     maximumDate?: Date;

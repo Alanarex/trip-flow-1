@@ -49,8 +49,21 @@ declare module 'react-native' {
 
     export interface ScrollViewProps extends ViewProps {
         contentContainerStyle?: ViewStyle | ViewStyle[];
+        // allow controlling keyboard behavior from ScrollView
+        keyboardShouldPersistTaps?: 'never' | 'always' | 'handled' | undefined;
     }
     export const ScrollView: ComponentType<ScrollViewProps>;
+
+    export interface TouchableWithoutFeedbackProps {
+        onPress?: () => void;
+        children?: ReactNode;
+    }
+    export const TouchableWithoutFeedback: ComponentType<TouchableWithoutFeedbackProps>;
+
+    export interface KeyboardStatic {
+        dismiss: () => void;
+    }
+    export const Keyboard: KeyboardStatic;
 
     export interface ActivityIndicatorProps {
         size?: 'small' | 'large' | number;
@@ -71,6 +84,7 @@ declare module 'react-native' {
         style?: TextStyle | TextStyle[];
         value?: string;
         onChangeText?: (text: string) => void;
+    onFocus?: () => void;
         placeholder?: string;
         placeholderTextColor?: string;
     }
@@ -80,6 +94,12 @@ declare module 'react-native' {
         onPress?: () => void;
     }
     export const TouchableOpacity: ComponentType<TouchableOpacityProps>;
+
+    // Minimal Platform typing used by the app
+    export const Platform: {
+        OS: 'ios' | 'android' | string;
+        select?: <T>(obj: { ios?: T; android?: T; default?: T }) => T | undefined;
+    };
 
     // add other minimal declarations as needed
 }

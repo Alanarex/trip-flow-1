@@ -1,6 +1,7 @@
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Button, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
+import { Button, Keyboard, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import { useSession } from '../auth';
 import { getDb, tx, uuid } from '../lib/db';
 
@@ -10,6 +11,9 @@ export default function NewTrip() {
   // Date picker states
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  // Controls whether the native date pickers are visible
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
   
   // Formatted date strings for display and database
   const [startDateString, setStartDateString] = useState('');
@@ -22,6 +26,13 @@ export default function NewTrip() {
   
   const router = useRouter();
   const { user } = useSession();
+
+  const handleCloseAll = () => {
+    // Close keyboard and any open pickers
+    Keyboard.dismiss();
+    setShowStartPicker(false);
+    setShowEndPicker(false);
+  };
 
   // Date setter functions (simplified for now)
   const setStartDateWithFormat = (selectedDate: Date) => {
@@ -95,7 +106,9 @@ export default function NewTrip() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <TouchableWithoutFeedback onPress={handleCloseAll}>
+      <View style={{ flex: 1 }}>
+        <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <Text style={styles.backButtonText}>← Back</Text>
       </TouchableOpacity>
@@ -123,6 +136,11 @@ export default function NewTrip() {
           style={styles.input}
           value={title}
           onChangeText={setTitle}
+          onFocus={() => {
+            // ensure any open date pickers are closed before the keyboard opens
+            setShowStartPicker(false);
+            setShowEndPicker(false);
+          }}
           placeholder="e.g., Summer Vacation in Italy"
           placeholderTextColor="#999"
         />
@@ -133,10 +151,8 @@ export default function NewTrip() {
         <TouchableOpacity 
           style={styles.datePickerButton} 
           onPress={() => {
-            // For now just show a simple date selector (will be improved later)
-            const today = new Date();
-            setStartDateWithFormat(today);
-            Alert.alert('Notice', 'Date picker functionality will be fixed in the next update. Using current date for now.');
+            setShowStartPicker(true);
+            setShowEndPicker(false);
           }}
         >
           <Text style={styles.dateText}>
@@ -150,13 +166,8 @@ export default function NewTrip() {
         <TouchableOpacity 
           style={styles.datePickerButton} 
           onPress={() => {
-            // For now just show a simple date selector (will be improved later)
-            const today = new Date();
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            setEndDateWithFormat(tomorrow);
-            Alert.alert('Notice', "Date picker functionality will be fixed in the next update. Using tomorrow's date for now.");
+            setShowEndPicker(true);
+            setShowStartPicker(false);
           }}
         >
           <Text style={styles.dateText}>
@@ -165,10 +176,62 @@ export default function NewTrip() {
         </TouchableOpacity>
       </View>
 
+      {/* Native date pickers: rendered when requested. For Android the picker is modal; for iOS inline/modal depending on props. */}
+      {showStartPicker && (
+        <View style={styles.pickerContainer}>
+          <DateTimePicker
+            value={startDate ?? new Date()}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+            maximumDate={undefined}
+            // Improve visibility on iOS by setting text color; style gives the picker a subtle background
+            textColor={Platform.OS === 'ios' ? '#111' : undefined}
+            style={Platform.OS === 'ios' ? { backgroundColor: '#f6f8fa' } : undefined}
+            onChange={(event, selected) => {
+              // On Android 'dismissed' returns undefined selected; on iOS selected may be set repeatedly
+              // event may be a native event object on Android with type === 'dismissed'
+              if ((event as any)?.type === 'dismissed') {
+                setShowStartPicker(false);
+                return;
+              }
+
+              const picked = selected ?? startDate ?? new Date();
+              setStartDateWithFormat(picked);
+              setShowStartPicker(false);
+            }}
+          />
+        </View>
+      )}
+
+      {showEndPicker && (
+        <View style={styles.pickerContainer}>
+          <DateTimePicker
+            value={endDate ?? (startDate ? new Date(startDate) : new Date())}
+            mode="date"
+            display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
+            minimumDate={startDate ?? undefined}
+            textColor={Platform.OS === 'ios' ? '#111' : undefined}
+            style={Platform.OS === 'ios' ? { backgroundColor: '#f6f8fa' } : undefined}
+            onChange={(event, selected) => {
+              if ((event as any)?.type === 'dismissed') {
+                setShowEndPicker(false);
+                return;
+              }
+
+              const picked = selected ?? endDate ?? new Date();
+              setEndDateWithFormat(picked);
+              setShowEndPicker(false);
+            }}
+          />
+        </View>
+      )}
+
       <View style={styles.buttonContainer}>
         <Button title="Create Trip" onPress={createTrip} />
       </View>
-    </ScrollView>
+        </ScrollView>
+      </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -243,5 +306,13 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#c62828',
+  },
+  pickerContainer: {
+    marginVertical: 8,
+    borderRadius: 8,
+    overflow: 'hidden',
+    // subtle border to separate the picker from white backgrounds
+    borderWidth: 1,
+    borderColor: '#e6e9ee',
   },
 });
