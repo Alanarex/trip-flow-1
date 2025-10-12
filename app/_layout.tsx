@@ -1,6 +1,8 @@
 import { Slot, usePathname, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import 'react-native-get-random-values';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { SessionProvider, useSession } from './auth';
 import { migrateAndSeed } from './lib/db';
 
@@ -36,13 +38,25 @@ function AuthGate() {
   }, [dbReady, booted, user, pathname, router]);
 
   if (!dbReady || !booted) return null;
-  return <Slot />;
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <Slot />
+    </SafeAreaView>
+  );
 }
 
 export default function RootLayout() {
   return (
-    <SessionProvider>
-      <AuthGate />
-    </SessionProvider>
+    <SafeAreaProvider>
+      <SessionProvider>
+        <AuthGate />
+      </SessionProvider>
+    </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  }
+});
