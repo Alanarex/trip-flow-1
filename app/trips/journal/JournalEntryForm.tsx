@@ -1,6 +1,7 @@
 import { Feather } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { JournalEntryInput } from './repo';
 
 type JournalEntryFormProps = {
@@ -18,9 +19,9 @@ export default function JournalEntryForm({
   onCancel,
   isLoading = false
 }: JournalEntryFormProps) {
-  // For now, we'll only use text since we've had schema issues
   const [text, setText] = useState(initialValues?.text || '');
   const [stepId, setStepId] = useState(initialValues?.step_id || null);
+  const [imageUri, setImageUri] = useState<string | null>(initialValues?.image_uri || null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validate = () => {
@@ -34,6 +35,61 @@ export default function JournalEntryForm({
     return Object.keys(errors).length === 0;
   };
 
+  const handleImagePicker = async () => {
+    try {
+      // Request permission
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'You need to grant permission to access your photos');
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+        aspect: [4, 3],
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to select image');
+    }
+  };
+  
+  const handleTakePhoto = async () => {
+    try {
+      // Request camera permission
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert('Permission Required', 'You need to grant permission to access your camera');
+        return;
+      }
+
+      // Launch camera
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 0.8,
+        aspect: [4, 3],
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo');
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setImageUri(null);
+  };
+
   const handleSubmit = async () => {
     if (!validate()) return;
     
@@ -44,9 +100,8 @@ export default function JournalEntryForm({
         title: text.trim().substring(0, 30) + (text.length > 30 ? '...' : ''),
         text: text.trim(),
         step_id: stepId,
-        // These features will be implemented later
-        image_uri: null,
-        audio_uri: null
+        image_uri: imageUri,
+        audio_uri: null // Audio will be implemented later
       });
     } catch (error) {
       Alert.alert('Error', 'Failed to save journal entry');
@@ -72,10 +127,43 @@ export default function JournalEntryForm({
         )}
       </View>
       
+      <View style={styles.formGroup}>
+        <Text style={styles.label}>Add Photo</Text>
+        <View style={styles.mediaButtons}>
+          <TouchableOpacity 
+            style={styles.mediaButton} 
+            onPress={handleImagePicker}
+          >
+            <Feather name="image" size={20} color="#1e88e5" />
+            <Text style={styles.mediaButtonText}>Choose from gallery</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.mediaButton} 
+            onPress={handleTakePhoto}
+          >
+            <Feather name="camera" size={20} color="#1e88e5" />
+            <Text style={styles.mediaButtonText}>Take a photo</Text>
+          </TouchableOpacity>
+        </View>
+        
+        {imageUri && (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} />
+            <TouchableOpacity 
+              style={styles.removeImageButton} 
+              onPress={handleRemoveImage}
+            >
+              <Feather name="x-circle" size={24} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+      
       <View style={styles.infoContainer}>
         <Feather name="info" size={20} color="#1e88e5" />
         <Text style={styles.infoText}>
-          Photos and audio recordings will be available in a future update.
+          Audio recordings will be available in a future update.
         </Text>
       </View>
 
@@ -212,5 +300,28 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     lineHeight: 20,
+  },
+  imagePreviewContainer: {
+    position: 'relative',
+    marginTop: 16,
+    alignSelf: 'center',
+    width: '100%',
+    maxHeight: 300,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  imagePreview: {
+    width: '100%',
+    height: 250,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 4,
   },
 });

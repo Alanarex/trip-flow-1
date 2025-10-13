@@ -194,10 +194,7 @@ export default function TripDetails() {
         
         <TouchableOpacity 
           style={styles.sectionCard}
-          onPress={() => {
-            // For now, just show an alert since checklist screen doesn't exist yet
-            Alert.alert('Info', 'Checklist functionality will be implemented in Phase 4');
-          }}
+          onPress={() => router.push(`/trips/${id}/checklist`)}
         >
           <Text style={styles.sectionTitle}>Checklists</Text>
           <Text style={styles.sectionDescription}>Prepare for your journey</Text>

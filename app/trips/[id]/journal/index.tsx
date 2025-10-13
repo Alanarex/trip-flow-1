@@ -56,11 +56,16 @@ export default function JournalEntries() {
   };
 
   const handlePressEntry = (entry: JournalEntry) => {
-    // In Phase 4, this will navigate to a detail view
-    // For now, just show an alert
+    // Show a more detailed modal with image if available
+    let message = entry.text;
+    
+    if (entry.image_uri) {
+      message = '📷 This entry contains an image.\n\n' + entry.text;
+    }
+    
     Alert.alert(
       entry.title || 'Untitled Entry',
-      entry.text,
+      message,
       [{ text: 'Close', style: 'cancel' }]
     );
   };

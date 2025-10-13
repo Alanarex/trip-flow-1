@@ -1,6 +1,6 @@
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { JournalEntry } from './repo';
 
 type JournalEntryItemProps = {
@@ -57,7 +57,15 @@ export default function JournalEntryItem({ entry, onPress, onDelete }: JournalEn
         </View>
       </View>
       
-      {/* Image placeholder removed for now */}
+      {entry.image_uri && (
+        <View style={styles.imageContainer}>
+          <Image 
+            source={{ uri: entry.image_uri }} 
+            style={styles.thumbnail} 
+            resizeMode="cover" 
+          />
+        </View>
+      )}
       
       {onDelete && (
         <TouchableOpacity
@@ -130,6 +138,10 @@ const styles = StyleSheet.create({
     height: 80,
     borderRadius: 8,
     overflow: 'hidden',
+  },
+  thumbnail: {
+    width: '100%',
+    height: '100%',
   },
   imagePlaceholder: {
     width: '100%',
