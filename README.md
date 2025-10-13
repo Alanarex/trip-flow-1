@@ -49,13 +49,13 @@ TripFlow helps users:
    - Trip details view
    - Trip deletion functionality
 
-4. **Trip Stages Management**
+4. **Trip Stages Management** ✅
    - Add stages to trips
    - Stage details (name, location, dates, description)
    - Edit and delete stages
 
 ### Phase 3: Interactive Map Features
-5. **Map Integration**
+5. **Map Integration** ✅
    - Display trip stages on map
    - Custom markers for stages
    - Automatic zoom to fit all stages

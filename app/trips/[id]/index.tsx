@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import TripMap from '../../../components/trip-map';
 import { useSession } from '../../auth';
 import { getDb, tx } from '../../lib/db';
 
@@ -17,6 +18,7 @@ export default function TripDetails() {
   const [trip, setTrip] = useState<TripDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showMap, setShowMap] = useState(true); // Map is visible by default
   const router = useRouter();
   const { user } = useSession();
 
@@ -142,7 +144,7 @@ export default function TripDetails() {
   }
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <TouchableOpacity style={styles.backLink} onPress={() => router.back()}>
         <Text style={styles.backLinkText}>← Back to Trips</Text>
       </TouchableOpacity>
@@ -160,24 +162,23 @@ export default function TripDetails() {
         >
           <Text style={styles.actionButtonText}>Edit Trip</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={() => {
-            // For now, just show an alert since map screen doesn't exist yet
-            Alert.alert('Info', 'Map view will be implemented in Phase 3');
-          }}
-        >
-          <Text style={styles.actionButtonText}>View Map</Text>
-        </TouchableOpacity>
       </View>
+      
+      {/* Map is now always shown if available */}
+      {id && (
+        <View style={styles.mapWrapper}>
+          <TripMap 
+            tripId={id} 
+            onStagePress={(stageId) => router.push(`/trips/${id}/stages/${stageId}`)}
+          />
+        </View>
+      )}
       
       <View style={styles.sectionsContainer}>
         <TouchableOpacity 
           style={styles.sectionCard}
           onPress={() => {
-            // For now, just show an alert since stages screen doesn't exist yet
-            Alert.alert('Info', 'Trip stages management will be implemented next');
+            router.push(`/trips/${id}/stages`);
           }}
         >
           <Text style={styles.sectionTitle}>Trip Stages</Text>
@@ -210,11 +211,16 @@ export default function TripDetails() {
         </TouchableOpacity>
       </View>
       
+            
       <View style={styles.dangerZone}>
-        <Text style={styles.dangerTitle}>Danger Zone</Text>
-        <Button title="Delete Trip" color="#c62828" onPress={deleteTrip} />
+        <TouchableOpacity 
+          style={styles.deleteButton}
+          onPress={deleteTrip}
+        >
+          <Text style={styles.deleteButtonText}>Delete Trip</Text>
+        </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -323,5 +329,25 @@ const styles = StyleSheet.create({
   backButtonText: {
     color: '#fff',
     fontWeight: '600',
+  },
+  mapWrapper: {
+    marginTop: 16,
+    marginBottom: 16,
+    height: 350,
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  deleteButton: {
+    backgroundColor: '#c62828',
+    paddingVertical: 10,
+    borderRadius: 4,
+    alignItems: 'center',
+  },
+  deleteButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });

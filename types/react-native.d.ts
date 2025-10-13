@@ -84,9 +84,16 @@ declare module 'react-native' {
         style?: TextStyle | TextStyle[];
         value?: string;
         onChangeText?: (text: string) => void;
-    onFocus?: () => void;
+        onFocus?: () => void;
         placeholder?: string;
         placeholderTextColor?: string;
+        keyboardType?: 'default' | 'number-pad' | 'decimal-pad' | 'numeric' | 'email-address' | 'phone-pad';
+        maxLength?: number;
+        multiline?: boolean;
+        numberOfLines?: number;
+        textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center';
+        secureTextEntry?: boolean;
+        autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
     }
     export const TextInput: ComponentType<TextInputProps>;
 
@@ -95,10 +102,15 @@ declare module 'react-native' {
     }
     export const TouchableOpacity: ComponentType<TouchableOpacityProps>;
 
+    export interface PressableProps extends ViewProps {
+        onPress?: () => void;
+    }
+    export const Pressable: ComponentType<PressableProps>;
+
     // Minimal Platform typing used by the app
     export const Platform: {
         OS: 'ios' | 'android' | string;
-        select?: <T>(obj: { ios?: T; android?: T; default?: T }) => T | undefined;
+        select: <T>(obj: { ios?: T; android?: T; default?: T; web?: T }) => T | undefined;
     };
 
     // add other minimal declarations as needed
