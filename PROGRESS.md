@@ -94,11 +94,11 @@ The app is now at approximately 70% completion for the core functionality (Phase
 ### Immediate Next Steps (Phase 4)
 1. **Complete Trip Journal Feature**
    - [x] Create journal entries list placeholder
-   - [ ] Create database schema for journal entries
-   - [ ] Implement CRUD operations for journal entries
-   - [ ] Build UI for creating and editing entries
-   - [ ] Add photo attachment functionality
-   - [ ] Implement optional audio recording
+   - [x] Create database schema for journal entries
+   - [x] Implement CRUD operations for journal entries
+   - [x] Build UI for creating and editing entries
+   - [ ] Add photo attachment functionality (prepared structure)
+   - [ ] Implement optional audio recording (prepared structure)
 
 2. **Implement Checklist System**
    - [ ] Create database schema for checklists and items

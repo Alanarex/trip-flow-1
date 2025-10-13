@@ -7,6 +7,19 @@ import { hash, uuid } from './utils';
 export async function migrateAndSeed() {
   // create schema
   await tx(async (db) => {
+    // Try to add new columns to journals table if they don't exist
+    try {
+      await db.execAsync(`
+        ALTER TABLE journals ADD COLUMN title TEXT;
+        ALTER TABLE journals ADD COLUMN image_uri TEXT;
+        ALTER TABLE journals ADD COLUMN audio_uri TEXT;
+      `);
+      console.log('Added new columns to journals table');
+    } catch (e) {
+      // Columns might already exist or table might not exist yet
+      console.log('Could not add columns to journals table, might already exist');
+    }
+    
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY NOT NULL,
@@ -35,6 +48,9 @@ export async function migrateAndSeed() {
         trip_id TEXT NOT NULL,
         step_id TEXT,
         text TEXT NOT NULL,
+        title TEXT,
+        image_uri TEXT,
+        audio_uri TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS checklists (
