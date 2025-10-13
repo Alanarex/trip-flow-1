@@ -14,6 +14,8 @@ declare module 'react-native' {
 
     export const StyleSheet: {
         create: <T extends { [key: string]: any }>(styles: T) => T;
+    /** Convenience absolute fill style */
+    absoluteFillObject: any;
     };
 
     export interface TextProps {
@@ -70,6 +72,19 @@ declare module 'react-native' {
         color?: string;
     }
     export const ActivityIndicator: ComponentType<ActivityIndicatorProps>;
+
+    // Dimensions API
+    export const Dimensions: {
+        get: (dim: 'window' | 'screen') => { width: number; height: number; scale?: number };
+    };
+
+    // ImageBackground
+    export interface ImageBackgroundProps extends ViewProps {
+        source: { uri: string } | number;
+        imageStyle?: ImageStyle | ImageStyle[];
+        resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
+    }
+    export const ImageBackground: ComponentType<ImageBackgroundProps>;
 
     export interface FlatListProps<ItemT = any> {
         data?: ItemT[] | null;

@@ -128,7 +128,7 @@ export default function EditTrip() {
       await tx(async (database) => {
         await database.runAsync(
           `UPDATE trips 
-           SET title = ?, start_date = ?, end_date = ? 
+           SET title = ?, start_date = ?, end_date = ?, updated_at = CURRENT_TIMESTAMP 
            WHERE id = ? AND user_id = ?`,
           [title.trim(), startIsoDate, endIsoDate, id, user.id]
         );

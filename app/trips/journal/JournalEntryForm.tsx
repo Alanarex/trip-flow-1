@@ -21,7 +21,6 @@ export default function JournalEntryForm({
   isLoading = false
 }: JournalEntryFormProps) {
   const [text, setText] = useState(initialValues?.text || '');
-  const [stepId, setStepId] = useState(initialValues?.step_id || null);
   const [imageUri, setImageUri] = useState<string | null>(initialValues?.image_uri || null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 

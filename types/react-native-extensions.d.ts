@@ -1,6 +1,11 @@
 import 'react-native';
 
 declare module 'react-native' {
+  interface ViewProps {
+    accessible?: boolean;
+    accessibilityRole?: string;
+    accessibilityLabel?: string;
+  }
   interface TouchableOpacityProps {
     activeOpacity?: number;
   }

@@ -15,7 +15,6 @@ export default function StagesList() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user } = useSession();
-  const [tripName, setTripName] = useState('');
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
 

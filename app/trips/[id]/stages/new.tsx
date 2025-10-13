@@ -14,7 +14,6 @@ export default function NewStage() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [dateInput, setDateInput] = useState('');
-  const [isDateValid, setIsDateValid] = useState(true);
   const [location, setLocation] = useState<{ lat: number; lng: number; name: string } | null>(null);
 
   const createStage = async () => {

@@ -7,12 +7,14 @@ type UserRow = {
     id: string;
     email: string;
     password_hash: string;
+    first_name?: string | null;
+    last_name?: string | null;
 };
 
 /**
  * Local exported user/session shape used by loginLocal and SessionProvider.signIn.
  */
-export type UserSession = { id: string; email: string };
+export type UserSession = { id: string; email: string; first_name?: string | null; last_name?: string | null };
 
 /**
  * Find a user row by email.
@@ -28,7 +30,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
     }
 
     const row = await db.getFirstAsync<UserRow>(
-        `SELECT id, email, password_hash FROM users WHERE email = ? LIMIT 1`,
+        `SELECT id, email, password_hash, first_name, last_name FROM users WHERE email = ? LIMIT 1`,
         [email]
     );
 
@@ -41,7 +43,7 @@ export async function findUserByEmail(email: string): Promise<UserRow | null> {
  * - prevents duplicate accounts (throws Error)
  * - returns the created UserSession { id, email }
  */
-export async function createUser(email: string, password: string): Promise<UserSession> {
+export async function createUser(email: string, password: string, firstName?: string, lastName?: string): Promise<UserSession> {
     const normalized = email.trim().toLowerCase();
     if (!normalized) throw new Error('Email is required');
 
@@ -59,14 +61,16 @@ export async function createUser(email: string, password: string): Promise<UserS
     const password_hash = hash(password);
 
     await tx(async (db) => {
-        await db.runAsync(`INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)`, [
+        await db.runAsync(`INSERT INTO users (id, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)`, [
             id,
             normalized,
             password_hash,
+            firstName ?? null,
+            lastName ?? null,
         ]);
     });
 
-    return { id, email: normalized };
+    return { id, email: normalized, first_name: firstName ?? null, last_name: lastName ?? null };
 }
 
 /**
@@ -87,5 +91,5 @@ export async function loginLocal(email: string, password: string): Promise<UserS
     if (!verifyPassword(password, user.password_hash)) {
         throw new Error('Invalid password (stored hash does not match computed hash).');
     }
-    return { id: user.id, email: user.email };
+    return { id: user.id, email: user.email, first_name: user.first_name ?? null, last_name: user.last_name ?? null };
 }

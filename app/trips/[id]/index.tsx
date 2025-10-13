@@ -18,7 +18,6 @@ export default function TripDetails() {
   const [trip, setTrip] = useState<TripDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showMap, setShowMap] = useState(true); // Map is visible by default
   const router = useRouter();
   const { user } = useSession();
 
@@ -179,7 +178,7 @@ export default function TripDetails() {
           }}
         >
           <Text style={styles.sectionTitle}>Trip Stages</Text>
-          <Text style={styles.sectionDescription}>Manage the places you'll visit</Text>
+          <Text style={styles.sectionDescription}>Manage the places you&apos;ll visit</Text>
           <Text style={styles.sectionArrow}>›</Text>
         </TouchableOpacity>
         

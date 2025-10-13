@@ -82,7 +82,7 @@ export default function Login() {
       <Text style={{ marginTop: 10, color: '#555' }}>demo@tripflow.app / 123456</Text>
 
       <Pressable onPress={() => router.push('/auth/signup')} style={{ marginTop: 14 }}>
-        <Text style={{ color: '#1e88e5' }}>Don't have an account? Sign up</Text>
+        <Text style={{ color: '#1e88e5' }}>Don&apos;t have an account? Sign up</Text>
       </Pressable>
     </View>
   );

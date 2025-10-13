@@ -84,29 +84,6 @@ export default function DateInput({
     onChange(formatted, isValid);
   };
 
-  // Function to convert dd/mm/yyyy to yyyy-mm-dd for database storage
-  const toISOFormat = (dateString: string): string | null => {
-    if (!dateString || !validateDate(dateString)) return null;
-    
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
-  };
-
-  // Function to convert from yyyy-mm-dd to dd/mm/yyyy for display
-  const fromISOFormat = (isoString: string): string => {
-    if (!isoString) return '';
-    
-    try {
-      const date = new Date(isoString);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    } catch (e) {
-      return '';
-    }
-  };
-
   return (
     <View style={styles.container}>
       <Text style={styles.label}>

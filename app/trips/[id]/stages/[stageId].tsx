@@ -28,7 +28,6 @@ export default function StageDetails() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [dateInput, setDateInput] = useState('');
-  const [isDateValid, setIsDateValid] = useState(true);
   const [location, setLocation] = useState<{ name: string; lat: number; lng: number } | null>(null);
 
   useEffect(() => {

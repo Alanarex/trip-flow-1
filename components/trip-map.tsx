@@ -22,7 +22,6 @@ type TripMapProps = {
 const TripMap = ({ tripId, onClose, onStagePress }: TripMapProps) => {
   const [stages, setStages] = useState<MapStage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedStage, setSelectedStage] = useState<MapStage | null>(null);
   const mapRef = useRef<MapView>(null);
   const router = useRouter();
 
@@ -78,7 +77,7 @@ const TripMap = ({ tripId, onClose, onStagePress }: TripMapProps) => {
         day: 'numeric'
       });
     } catch (e) {
-      return '';
+      return e;
     }
   };
 

@@ -20,11 +20,13 @@ export async function migrateAndSeed() {
       console.log('Could not add columns to journals table, might already exist');
     }
     
-    await db.execAsync(`
+  await db.execAsync(`
       CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
+        first_name TEXT,
+        last_name TEXT,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS trips (
@@ -34,7 +36,8 @@ export async function migrateAndSeed() {
         start_date TEXT,
         end_date TEXT,
         cover_uri TEXT,
-        created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
       );
       CREATE TABLE IF NOT EXISTS steps (
         id TEXT PRIMARY KEY NOT NULL,
@@ -66,6 +69,24 @@ export async function migrateAndSeed() {
         ord INTEGER DEFAULT 0
       );
     `);
+
+    // Try to add name columns to users if they don't exist yet (older DBs)
+    try {
+      await db.execAsync(`ALTER TABLE users ADD COLUMN first_name TEXT;`);
+      await db.execAsync(`ALTER TABLE users ADD COLUMN last_name TEXT;`);
+    } catch (e) {
+      // Columns may already exist
+    }
+
+    // Try to add updated_at to trips if it doesn't exist yet (older DBs)
+    try {
+      await db.execAsync(`ALTER TABLE trips ADD COLUMN updated_at TEXT DEFAULT CURRENT_TIMESTAMP;`);
+      // Backfill updated_at from created_at where null
+      await db.execAsync(`UPDATE trips SET updated_at = COALESCE(updated_at, created_at);`);
+    } catch (e) {
+      // Column might already exist
+      // console.log('updated_at may already exist on trips');
+    }
   });
 
   const userCount = await getSingle<{ c: number }>(`SELECT COUNT(*) as c FROM users`);
@@ -81,10 +102,12 @@ async function seed() {
 
   await tx(async (db) => {
     // demo user: demo@tripflow.app / 123456
-    await db.runAsync(`INSERT INTO users (id, email, password_hash) VALUES (?, ?, ?)`, [
+    await db.runAsync(`INSERT INTO users (id, email, password_hash, first_name, last_name) VALUES (?, ?, ?, ?, ?)`, [
       userId,
       'demo@tripflow.app',
       hash('123456'),
+      'Demo',
+      'User',
     ]);
 
     await db.runAsync(

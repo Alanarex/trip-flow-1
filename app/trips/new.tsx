@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import DateInput, { dateUtils } from '../../components/date-input';
 import { useSession } from '../auth';
-import { getDb, tx, uuid } from '../lib/db';
+import { tx, uuid } from '../lib/db';
 
 export default function NewTrip() {
   const [title, setTitle] = useState('');
@@ -56,7 +56,6 @@ export default function NewTrip() {
       }
 
       const tripId = uuid();
-      const db = getDb();
       
       if (!user?.id) {
         throw new Error('User not authenticated');
@@ -64,8 +63,8 @@ export default function NewTrip() {
       
       await tx(async (database) => {
         await database.runAsync(
-          `INSERT INTO trips (id, user_id, title, start_date, end_date, created_at)
-           VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+          `INSERT INTO trips (id, user_id, title, start_date, end_date, cover_uri, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
           [tripId, user.id, title.trim(), startIsoDate, endIsoDate]
         );
       });
