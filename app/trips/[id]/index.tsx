@@ -155,10 +155,7 @@ export default function TripDetails() {
       <View style={styles.actionsContainer}>
         <TouchableOpacity 
           style={styles.actionButton} 
-          onPress={() => {
-            // For now, just show an alert since edit screen doesn't exist yet
-            Alert.alert('Info', 'Edit trip functionality will be implemented next');
-          }}
+          onPress={() => router.push(`/trips/${id}/edit`)}
         >
           <Text style={styles.actionButtonText}>Edit Trip</Text>
         </TouchableOpacity>
@@ -188,10 +185,7 @@ export default function TripDetails() {
         
         <TouchableOpacity 
           style={styles.sectionCard}
-          onPress={() => {
-            // For now, just show an alert since journal screen doesn't exist yet
-            Alert.alert('Info', 'Journal functionality will be implemented in Phase 4');
-          }}
+          onPress={() => router.push(`/trips/${id}/journal`)}
         >
           <Text style={styles.sectionTitle}>Journal</Text>
           <Text style={styles.sectionDescription}>Add notes and memories</Text>

@@ -99,6 +99,8 @@ declare module 'react-native' {
 
     export interface TouchableOpacityProps extends ViewProps {
         onPress?: () => void;
+        disabled?: boolean;
+        activeOpacity?: number;
     }
     export const TouchableOpacity: ComponentType<TouchableOpacityProps>;
 

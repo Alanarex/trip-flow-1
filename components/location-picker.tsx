@@ -7,9 +7,9 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 
 type SearchResult = {
   id: string;
@@ -161,7 +161,6 @@ const LocationPicker: React.FC<LocationPickerProps> = ({
       <Text style={styles.mapLabel}>Select location on map or search above</Text>
       
       <MapView
-        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
           latitude: selectedLocation?.lat || 48.8566, // Default to Paris

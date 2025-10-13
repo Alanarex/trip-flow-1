@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Callout, Marker, Polyline } from 'react-native-maps';
 import { getDb } from '../app/lib/db';
 
 type MapStage = {
@@ -115,7 +115,6 @@ const TripMap = ({ tripId, onClose, onStagePress }: TripMapProps) => {
     <View style={styles.container}>
       <MapView
         ref={mapRef}
-        provider={PROVIDER_GOOGLE}
         style={styles.map}
         initialRegion={{
           latitude: 48.8566, // Default to Paris
@@ -124,6 +123,19 @@ const TripMap = ({ tripId, onClose, onStagePress }: TripMapProps) => {
           longitudeDelta: 5,
         }}
       >
+        {/* Draw routes between stages if there are at least 2 stages */}
+        {stages.length >= 2 && (
+          <Polyline
+            coordinates={stages.map(stage => ({
+              latitude: stage.lat,
+              longitude: stage.lng,
+            }))}
+            strokeColor="#1e88e5"
+            strokeWidth={2}
+            lineDashPattern={[5, 2]}
+          />
+        )}
+        
         {stages.map(stage => (
           <Marker
             key={stage.id}
