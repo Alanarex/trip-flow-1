@@ -86,6 +86,14 @@ declare module 'react-native' {
     }
     export const ImageBackground: ComponentType<ImageBackgroundProps>;
 
+    // Basic Image component
+    export interface ImageProps extends ViewProps {
+        source: { uri: string } | number;
+        style?: ImageStyle | ImageStyle[];
+        resizeMode?: 'cover' | 'contain' | 'stretch' | 'repeat' | 'center';
+    }
+    export const Image: ComponentType<ImageProps>;
+
     export interface FlatListProps<ItemT = any> {
         data?: ItemT[] | null;
         renderItem?: ({ item, index }: { item: ItemT; index: number }) => ReactNode;

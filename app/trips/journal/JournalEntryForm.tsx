@@ -99,7 +99,8 @@ export default function JournalEntryForm({
         // Use an auto-generated title from the text
         title: text.trim().substring(0, 30) + (text.length > 30 ? '...' : ''),
         text: text.trim(),
-        step_id: stepId,
+  // No step linking yet in this form; use provided initial step_id if any
+  step_id: initialValues?.step_id ?? null,
         image_uri: imageUri,
         audio_uri: null // Audio will be implemented later
       });

@@ -17,6 +17,7 @@ export default function StagesList() {
   const { user } = useSession();
   const [stages, setStages] = useState<Stage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tripName, setTripName] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -97,7 +98,7 @@ export default function StagesList() {
       </TouchableOpacity>
 
       <View style={styles.header}>
-        <Text style={styles.title}>Stages</Text>
+        <Text style={styles.title}>{tripName ? `${tripName} — Stages` : 'Stages'}</Text>
         <TouchableOpacity 
           style={styles.addButton}
           onPress={() => router.push(`/trips/${id}/stages/new`)}

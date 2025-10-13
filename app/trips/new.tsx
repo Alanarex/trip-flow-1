@@ -1,12 +1,15 @@
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Button, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
+import { Button, Image, Keyboard, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
 import DateInput, { dateUtils } from '../../components/date-input';
 import { useSession } from '../auth';
 import { tx, uuid } from '../lib/db';
 
 export default function NewTrip() {
   const [title, setTitle] = useState('');
+  const [coverUri, setCoverUri] = useState<string | null>(null);
+  const [mediaPerm, requestMediaPerm] = ImagePicker.useMediaLibraryPermissions();
   
   // Date input states
   const [startDateInput, setStartDateInput] = useState('');
@@ -35,23 +38,43 @@ export default function NewTrip() {
         return;
       }
 
-      // Convert the dd/mm/yyyy format to yyyy-mm-dd for database
-      const startIsoDate = startDateInput ? dateUtils.toISOFormat(startDateInput) : null;
-      const endIsoDate = endDateInput ? dateUtils.toISOFormat(endDateInput) : null;
+      // Require both dates
+      if (!startDateInput || !endDateInput) {
+        setStatus({ type: 'error', msg: 'Please enter both a start date and an end date' });
+        return;
+      }
 
-      if (startDateInput && !startIsoDate) {
+      // Convert the dd/mm/yyyy format to yyyy-mm-dd for database
+      const startIsoDate = dateUtils.toISOFormat(startDateInput);
+      const endIsoDate = dateUtils.toISOFormat(endDateInput);
+
+      if (!startIsoDate) {
         setStatus({ type: 'error', msg: 'Please enter a valid start date in the format dd/mm/yyyy' });
         return;
       }
 
-      if (endDateInput && !endIsoDate) {
+      if (!endIsoDate) {
         setStatus({ type: 'error', msg: 'Please enter a valid end date in the format dd/mm/yyyy' });
         return;
       }
 
+      // Normalize to date-only for comparisons
+      const startDate = new Date(startIsoDate);
+      const endDate = new Date(endIsoDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
       // Check if end date is after start date
-      if (startIsoDate && endIsoDate && new Date(startIsoDate) > new Date(endIsoDate)) {
+      if (startDate >= endDate) {
         setStatus({ type: 'error', msg: 'End date must be after start date' });
+        return;
+      }
+
+      // Both dates must be in the future
+      if (!(startDate > today && endDate > today)) {
+        setStatus({ type: 'error', msg: 'Both start and end dates must be in the future' });
         return;
       }
 
@@ -64,8 +87,8 @@ export default function NewTrip() {
       await tx(async (database) => {
         await database.runAsync(
           `INSERT INTO trips (id, user_id, title, start_date, end_date, cover_uri, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, NULL, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-          [tripId, user.id, title.trim(), startIsoDate, endIsoDate]
+           VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+          [tripId, user.id, title.trim(), startIsoDate, endIsoDate, coverUri]
         );
       });
 
@@ -136,6 +159,45 @@ export default function NewTrip() {
         placeholder="dd/mm/yyyy"
       />
 
+      <View style={styles.formGroup}>
+        <Text style={styles.label}>Cover Image (optional)</Text>
+        <TouchableOpacity
+          style={styles.coverPicker}
+          onPress={async () => {
+            // Request permission if needed
+            if (!mediaPerm?.granted) {
+              const { granted } = await requestMediaPerm();
+              if (!granted) {
+                setStatus({ type: 'error', msg: 'Permission to access photos is required to pick a cover image' });
+                return;
+              }
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              allowsEditing: true,
+              aspect: [16, 9],
+              quality: 0.8,
+            });
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+              setCoverUri(result.assets[0].uri);
+            }
+          }}
+        >
+          {coverUri ? (
+            <Image source={{ uri: coverUri }} style={styles.coverImage} />
+          ) : (
+            <View style={styles.coverPlaceholder}>
+              <Text style={{ color: '#666' }}>Tap to select a cover image</Text>
+            </View>
+          )}
+        </TouchableOpacity>
+        {coverUri && (
+          <TouchableOpacity style={styles.removeCoverBtn} onPress={() => setCoverUri(null)}>
+            <Text style={styles.removeCoverText}>Remove cover</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       <View style={styles.buttonContainer}>
         <Button title="Create Trip" onPress={createTrip} />
       </View>
@@ -180,6 +242,31 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 6,
     fontSize: 16,
+  },
+
+  coverPicker: {
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 6,
+    overflow: 'hidden',
+    backgroundColor: '#f8fafc',
+  },
+  coverPlaceholder: {
+    height: 140,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  coverImage: {
+    width: '100%',
+    height: 160,
+    resizeMode: 'cover',
+  },
+  removeCoverBtn: {
+    marginTop: 8,
+  },
+  removeCoverText: {
+    color: '#e53935',
   },
 
   buttonContainer: {
