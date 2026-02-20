@@ -7,7 +7,9 @@ let _db: SQLite.SQLiteDatabase | null = null;
  * Uses synchronous open to ensure availability at runtime.
  */
 export function getDb(): SQLite.SQLiteDatabase {
-  if (!_db) _db = SQLite.openDatabaseSync('tripflow-dev.db'); // changed name to force fresh DB
+  // TEMP: use a new DB file name to force a fresh schema on next launch
+  // Remember to revert to 'tripflow-dev.db' after the first successful boot
+  if (!_db) _db = SQLite.openDatabaseSync('tripflow-dev-v3.db');
   return _db;
 }
 
