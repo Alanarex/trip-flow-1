@@ -24,7 +24,7 @@
 
 ```
 app/                 # Expo Router file-based routes
-├── (tabs)/          # Home, Explore, Profile tabs
+├── (tabs)/          # Home, Explore (placeholder), Profile tabs
 ├── auth/            # login, signup, SessionProvider, local repository
 ├── trips/           # trips list/new, [id]/stages, checklist/, journal/
 └── lib/db/          # SQLite connection, migrations, utils (hashing, uuid)
