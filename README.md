@@ -1,200 +1,63 @@
-# TripFlow - Your Travel Companion App 🌍✈️
+# Trip Flow
 
-TripFlow is a comprehensive travel planning and journaling application that allows users to create, manage, and share their travel experiences. Built with React Native and Expo.
+> A mobile travel planner built with Expo and React Native: plan trips, add stages on a map, keep a checklist and write a journal, all stored on the device.
 
-## 🎯 Application Overview
+![React Native](https://img.shields.io/badge/React_Native-0.81-61DAFB?logo=react&logoColor=white)
+![Expo](https://img.shields.io/badge/Expo-SDK_54-000020?logo=expo&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-expo--sqlite-003B57?logo=sqlite&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-green)
 
-TripFlow helps users:
-- Create personalized trips with customizable itineraries
-- Add and manage trip stages (cities, places, activities)
-- Visualize travel routes on an interactive map
-- Add photos, notes (written and audio)
-- Prepare for trips with customizable checklists
-- View past trips as memories
-- Share trips with others
-- Use the application offline during travel
+**Résumé (FR)** : application mobile de préparation de voyages (Expo / React Native). On crée des voyages avec une image de couverture, on ajoute des étapes géolocalisées sur une carte, on tient une checklist et un journal de bord. Comptes et données sont stockés localement dans SQLite, sans serveur.
 
-## 🚀 Getting Started
+## Features
 
-1. Install dependencies
+- Local sign up / log in with a persistent session (`expo-secure-store`).
+- Trips: create, edit, delete, with dates (date picker) and a cover image.
+- Stages: add and edit stages with a location picker; trips are shown on a map (`react-native-maps`) with markers and a route line.
+- Checklist per trip.
+- Journal entries per trip, with photos (`expo-image-picker`, `expo-image`).
+- User profile with first and last name.
+- Demo data seeded on first launch (demo account `demo@tripflow.app`).
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-## 📋 Development Plan
-
-### Phase 1: Project Setup and Authentication
-1. **Project Configuration** ✅
-   - Set up Expo project with React Navigation
-   - Configure TypeScript
-   - Set up file structure
-
-2. **Authentication System**
-   - Login screen
-   - Registration screen
-   - Password recovery (optional)
-   - Session management
-
-### Phase 2: Core Trip Management
-3. **Trip List & Creation**
-   - Homepage with trip list
-   - Create new trip form
-   - Trip details view
-   - Trip deletion functionality
-
-4. **Trip Stages Management** ✅
-   - Add stages to trips
-   - Stage details (name, location, dates, description)
-   - Edit and delete stages
-
-### Phase 3: Interactive Map Features
-5. **Map Integration** ✅
-   - Display trip stages on map
-   - Custom markers for stages
-   - Automatic zoom to fit all stages
-   - Route visualization between stages
-
-6. **Location Services**
-   - Search locations and points of interest
-   - Add stages directly from map
-   - Geocoding and reverse geocoding
-   - Map customization (themes, markers)
-
-### Phase 4: Travel Journal Features
-7. **Trip Journal**
-   - Add text notes to stages/days
-   - Photo gallery integration
-   - Audio recording (optional)
-   - Journal entry management
-
-8. **Checklist System**
-   - Create trip preparation lists
-   - Add, edit, and delete items
-   - Check/uncheck functionality
-   - List templates (optional)
-
-### Phase 5: Sharing & Advanced Features
-9. **Offline Functionality**
-   - Data caching and local storage
-   - Offline map support
-   - Background synchronization
-
-10. **Sharing & Collaboration**
-    - Generate sharing links
-    - Invite travel companions
-    - Collaborative editing (optional)
-    - Export trip as PDF/photo album
-
-### Phase 6: Polishing & Deployment
-11. **UI/UX Refinements**
-    - App-wide theme consistency
-    - Animations and transitions
-    - Accessibility improvements
-    - Performance optimization
-
-12. **Testing & Deployment**
-    - Unit and integration testing
-    - User testing
-    - Bug fixes
-    - App store submission preparation
-
-## 📁 File Structure Plan
+## Architecture
 
 ```
-app/
-├── _layout.tsx              # Root layout with navigation configuration
-├── index.tsx               # App entry point - redirects to trips list or login
-├── (tabs)/                 # Main app tabs
-│   ├── _layout.tsx         # Tab navigation configuration
-│   ├── index.tsx           # Home tab/trips list
-│   └── explore.tsx         # Explore tab (optional)
-├── auth/                   # Authentication screens and logic
-│   ├── login.tsx           # Login screen
-│   ├── signup.tsx          # Registration screen
-│   ├── hooks/              # Authentication custom hooks
-│   └── provider/           # Auth context provider
-├── trips/                  # Trip-related screens and components
-│   ├── index.tsx           # Trips list page
-│   ├── new.tsx             # Create new trip screen
-│   ├── [id]/               # Individual trip screens
-│   │   ├── index.tsx       # Trip details overview
-│   │   ├── edit.tsx        # Edit trip details
-│   │   ├── stages/         # Trip stages management
-│   │   │   ├── index.tsx   # Stages list
-│   │   │   ├── new.tsx     # Add new stage
-│   │   │   └── [stageId].tsx # Stage details/edit
-│   │   ├── map.tsx         # Trip map view
-│   │   ├── journal/        # Trip journal
-│   │   │   ├── index.tsx   # Journal entries list
-│   │   │   └── [entryId].tsx # Journal entry view/edit
-│   │   └── checklist/      # Trip checklists
-│   │       ├── index.tsx   # Checklists overview
-│   │       └── [listId].tsx # Individual checklist
-│   └── components/         # Trip-specific reusable components
-├── maps/                   # Map-related components and utilities
-│   ├── components/         # Map components (markers, info windows, etc.)
-│   └── hooks/              # Map-related custom hooks
-├── journal/                # Journal-related components and utilities
-│   ├── components/         # Journal entry components
-│   └── hooks/              # Journal-related custom hooks
-└── lib/                    # Shared utilities and services
-    ├── db/                 # Database related code
-    ├── api/                # API services
-    ├── storage/            # Storage utilities (images, offline data)
-    └── geo/                # Geolocation services
+app/                 # Expo Router file-based routes
+├── (tabs)/          # Home, Explore (placeholder), Profile tabs
+├── auth/            # login, signup, SessionProvider, local repository
+├── trips/           # trips list/new, [id]/stages, checklist/, journal/
+└── lib/db/          # SQLite connection, migrations, utils (hashing, uuid)
+components/          # shared UI (date input, location picker, trip map...)
+types/               # local type declarations
 ```
 
-## 🌿 Git Branching Strategy
+All data lives in an on-device SQLite database (tables: users, trips, steps, journals, checklists, checklist_items). There is no backend.
 
-### Main Branches
-- `main`: Production-ready code
-- `develop`: Integration branch for features
+## Getting started
 
-### Feature Branches
-- `feature/auth`: Authentication system
-- `feature/trips`: Trip management functionality
-- `feature/map`: Map integration and features
-- `feature/journal`: Journal and photo features
-- `feature/checklist`: Checklist functionality
-- `feature/offline`: Offline capabilities
-- `feature/sharing`: Trip sharing features
+Requirements: Node.js 20+, npm, Android Studio / Xcode or Expo Go.
 
-### Other Branches
-- `bugfix/*`: For bug fixes
-- `hotfix/*`: For urgent production fixes
-- `release/*`: For release preparation
+```sh
+npm install
+npx expo start          # then press a / i, or scan the QR code with Expo Go
+npm run android         # development build
+npm run ios
+```
 
-## 📱 UI/UX Design Principles
-- Clean, minimalist interface
-- Consistent color scheme and typography
-- Intuitive navigation
-- Responsive design for different screen sizes
-- Accessibility considerations
+Maps need a development build or platform keys for production use; check the `react-native-maps` documentation.
 
-## 🛠️ Technologies
+## Tests
 
-- **Frontend**: React Native, Expo
-- **Navigation**: Expo Router
-- **State Management**: React Context API + Hooks
-- **Database**: SQLite (via expo-sqlite)
-- **Maps**: react-native-maps
-- **Storage**: expo-secure-store, expo-file-system
-- **Authentication**: Custom auth with expo-secure-store
-- **Location**: expo-location
+No automated tests yet (see the open issues).
 
-## 📝 Coding Standards
+## What it demonstrates
 
-- TypeScript for type safety
-- English comments and documentation
-- Component-based architecture
-- Descriptive naming conventions
-- Separation of concerns
-- Regular code refactoring
-- Unit tests for critical functionality
+- Cross-platform mobile development with Expo Router and strict TypeScript.
+- Local-first persistence: SQLite schema, versioned migrations and repository modules.
+- Maps, image picking, date and location inputs.
+- A session provider and a simple auth flow.
+
+## License
+
+MIT, see [LICENSE](LICENSE).
