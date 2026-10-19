@@ -4,6 +4,8 @@ import { Button, Pressable, Text, TextInput, View } from 'react-native';
 import { createUser } from './repo/local';
 
 export default function SignUp() {
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
@@ -28,7 +30,7 @@ export default function SignUp() {
 
             if (password !== confirm) throw new Error('Passwords do not match');
 
-            await createUser(normalized, password);
+            await createUser(normalized, password, firstName.trim() || undefined, lastName.trim() || undefined);
             setStatus({ type: 'ok', msg: 'Account created — please login.' });
             setTimeout(() => router.replace('/auth/login'), 400);
         } catch (e: any) {
@@ -55,6 +57,38 @@ export default function SignUp() {
                 </View>
             ) : null}
 
+            <TextInput
+                placeholder="First name (optional)"
+                placeholderTextColor="#777"
+                value={firstName}
+                onChangeText={setFirstName}
+                autoCapitalize="words"
+                style={{
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    backgroundColor: '#fff',
+                    color: '#111',
+                    padding: 10,
+                    marginBottom: 10,
+                    borderRadius: 6,
+                }}
+            />
+            <TextInput
+                placeholder="Last name (optional)"
+                placeholderTextColor="#777"
+                value={lastName}
+                onChangeText={setLastName}
+                autoCapitalize="words"
+                style={{
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    backgroundColor: '#fff',
+                    color: '#111',
+                    padding: 10,
+                    marginBottom: 10,
+                    borderRadius: 6,
+                }}
+            />
             <TextInput
                 placeholder="Email"
                 placeholderTextColor="#777"

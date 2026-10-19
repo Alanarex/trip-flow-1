@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 /** User object type */
-export type User = { id: string; email: string } | null;
+export type User = { id: string; email: string; first_name?: string | null; last_name?: string | null } | null;
 
 /** Session context type */
 export type SessionContextType = {
