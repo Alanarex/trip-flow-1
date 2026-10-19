@@ -1,4 +1,4 @@
-import { getDb, hash, tx, uuid, verifyPassword } from '../../lib/db';
+import { getDb, hash, needsRehash, tx, uuid, verifyPassword } from '../../lib/db';
 
 /**
  * Row shape returned from users table.
@@ -90,6 +90,10 @@ export async function loginLocal(email: string, password: string): Promise<UserS
 
     if (!verifyPassword(password, user.password_hash)) {
         throw new Error('Invalid password (stored hash does not match computed hash).');
+    }
+    if (needsRehash(user.password_hash)) {
+        // Upgrade legacy unsalted hashes transparently after a successful login
+        await getDb()?.runAsync(`UPDATE users SET password_hash = ? WHERE id = ?`, [hash(password), user.id]);
     }
     return { id: user.id, email: user.email, first_name: user.first_name ?? null, last_name: user.last_name ?? null };
 }
