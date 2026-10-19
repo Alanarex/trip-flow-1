@@ -15,15 +15,41 @@ export function base64Encode(str: string): string {
   return Base64.encode(str);
 }
 
-/**
- * Demo-only password hashing — synchronous SHA-256 hex prefixed.
- * Note: for real apps use a proper password hashing algorithm (bcrypt/argon2)
- */
-export function hash(pw: string) {
-  return `h$${sha256(pw)}`;
+const ITERATIONS = 5000;
+
+function randomSaltHex(bytes = 16): string {
+  const arr = new Uint8Array(bytes);
+  crypto.getRandomValues(arr); // polyfilled by react-native-get-random-values
+  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** Verify demo password */
+function derive(pw: string, salt: string, iterations: number): string {
+  let digest = sha256(`${salt}:${pw}`);
+  for (let i = 1; i < iterations; i++) digest = sha256(`${salt}:${digest}`);
+  return digest;
+}
+
+/**
+ * Password hashing: random salt + iterated SHA-256, stored as `v2$<iterations>$<salt>$<hash>`.
+ * Stronger than the legacy unsalted `h$<sha256>`, but not a memory-hard KDF (bcrypt/argon2 would be).
+ */
+export function hash(pw: string) {
+  const salt = randomSaltHex();
+  return `v2$${ITERATIONS}$${salt}$${derive(pw, salt, ITERATIONS)}`;
+}
+
+/** True when the stored hash uses the legacy unsalted format and should be upgraded after login. */
+export function needsRehash(stored: string) {
+  return !stored.startsWith("v2$");
+}
+
+/** Verify a password against a v2 hash, or the legacy unsalted `h$` hash. */
 export function verifyPassword(input: string, stored: string) {
-  return stored === hash(input);
+  if (stored.startsWith("v2$")) {
+    const [, iterations, salt, expected] = stored.split("$");
+    const count = Number(iterations);
+    if (!salt || !expected || !Number.isInteger(count) || count < 1) return false;
+    return derive(input, salt, count) === expected;
+  }
+  return stored === `h$${sha256(input)}`;
 }
